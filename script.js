@@ -39,6 +39,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function mostrarTiempo(datos) {
         const { NOMBRE } = datos.municipio;
         const { temperatura_actual, temperaturas, stateSky, humedad, viento } = datos;
+
+        const ahora = new Date(); // Crea un objeto Date con la fecha y hora actual
+        const horas = ahora.getHours(); // Obtiene la hora (0-23)
+        const minutos = ahora.getMinutes(); // Obtiene los minutos (0-59)
+        const segundos = ahora.getSeconds(); // Obtiene los segundos (0-59)
+
         
         title.innerHTML = `
             <h1>El tiempo en ${NOMBRE}</h1>
@@ -51,6 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <p>Descripción: ${stateSky.description}</p>
             <p>Humedad: ${humedad}%</p>
             <p>Velocidad del viento: ${viento} km/h</p>
+            <p>Ultima actualizacion: ${horas}:${minutos}:${segundos}</p>
         `;
     }
 
@@ -89,11 +96,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function obtenerTiempo() {
         try {
-            //let { provincia, municipio } = await obtenerUbicacion();
-            //ubicacion.innerHTML = `Provincia: ${provincia}, Municipio: ${municipio}`;
-        
-            provincia = "Córdoba";
-            municipio =  "Cabra";
+            try {
+                let { provincia, municipio } = await obtenerUbicacion();
+                ubicacion.innerHTML = `Provincia: ${provincia}, Municipio: ${municipio}`;
+            } catch (error) {
+                provincia = "Córdoba";
+                municipio =  "Cabra";
+            }
+            
             codigoProvincia = await obtener_codigo_provincia(provincia);
             codigoMunicipio = await obtener_codigo_municipio(municipio, codigoProvincia);
 
