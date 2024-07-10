@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 const response = await fetch(`${baseUrl}/provincias`);
                 const data = await response.json();
+            
                 let codigoProvincia = data.provincias.find(p => p.NOMBRE_PROVINCIA.toLowerCase().includes(nombreProvincia.toLowerCase())).CODPROV;
                 resolve(codigoProvincia);
             } catch (error) {
@@ -49,9 +50,9 @@ document.addEventListener('DOMContentLoaded', function () {
         title.innerHTML = `
             <h1>El tiempo en ${NOMBRE}</h1>
         `;
-        container.innerHTML = `
-            <h2>Ciudad: ${NOMBRE}</h2>
-            <p>Temperatura actual: ${temperatura_actual}°C</p>
+        container.innerHTML = 
+            //<h2>Ciudad: ${NOMBRE}</h2>
+            `<p>Temperatura actual: ${temperatura_actual}°C</p>
             <p>Temperatura máxima: ${temperaturas.max}°C</p>
             <p>Temperatura mínima: ${temperaturas.min}°C</p>
             <p>Descripción: ${stateSky.description}</p>
@@ -70,10 +71,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     try {
                         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
                         const data = await response.json();
-                        const { county, state_district, town, city, village } = data.address;
+                        const { province, town, city, village } = data.address;
 
                         const municipio = town || city || village;
-                        const provincia = county || state_district;
+                        const provincia = province;
+
     
                         if (provincia && municipio) {
                             resolve({ provincia, municipio });
@@ -96,17 +98,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function obtenerTiempo() {
         try {
-            try {
-                let { provincia, municipio } = await obtenerUbicacion();
-                ubicacion.innerHTML = `Provincia: ${provincia}, Municipio: ${municipio}`;
-            } catch (error) {
-                provincia = "Córdoba";
-                municipio =  "Cabra";
-            }
+            let { provincia, municipio } = await obtenerUbicacion();
+            ubicacion.innerHTML = `<h1>Provincia: ${provincia}, Municipio: ${municipio}</h1>`;
             
             codigoProvincia = await obtener_codigo_provincia(provincia);
             codigoMunicipio = await obtener_codigo_municipio(municipio, codigoProvincia);
-
             // Obtener datos meteorológicos
             response = await fetch(`${baseUrl}/provincias/${codigoProvincia}/municipios/${codigoMunicipio}`);
             let tiempo = await response.json();
