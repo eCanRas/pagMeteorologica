@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () { 
     const container = document.getElementById('container');
     const title = document.getElementById('title');
+    const errorZone = document.getElementById('error');
 
     const baseUrl = 'https://www.el-tiempo.net/api/json/v2';
 
@@ -74,10 +75,10 @@ document.addEventListener('DOMContentLoaded', function () {
     async function obtenerTiempo() {
         try {
             let { provincia, municipio } = await obtenerUbicacion();
-            console.log(`Provincia: ${provincia}, Municipio: ${municipio}`);
+            container.innerHTML = `Provincia: ${provincia}, Municipio: ${municipio}`;
         
-            provincia = "Córdoba";
-            municipio =  "Cabra";
+            //provincia = "Córdoba";
+            //municipio =  "Cabra";
             codigoProvincia = await obtener_codigo_provincia(provincia);
             codigoMunicipio = await obtener_codigo_municipio(municipio, codigoProvincia);
 
@@ -89,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } catch (error) {
             console.error('Error al obtener los datos:', error);
-            container.innerHTML = `<p>Error al obtener los datos meteorológicos.</p>`;
+            errorZone.innerHTML = `<p>Error al obtener los datos meteorológicos.</p>`;
         }
     }
 
