@@ -48,10 +48,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     try {
                         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
                         const data = await response.json();
-                        const { state, town, city, village } = data.address;
-    
+                        const { county, state_district, town, city, village } = data.address;
+
                         const municipio = town || city || village;
-                        const provincia = state;
+                        const provincia = county || state_district;
     
                         if (provincia && municipio) {
                             resolve({ provincia, municipio });
@@ -75,10 +75,10 @@ document.addEventListener('DOMContentLoaded', function () {
     async function obtenerTiempo() {
         try {
             let { provincia, municipio } = await obtenerUbicacion();
-            container.innerHTML = `Provincia: ${provincia}, Municipio: ${municipio}`;
+            errorZone.innerHTML = `Provincia: ${provincia}, Municipio: ${municipio}`;
         
-            //provincia = "Córdoba";
-            //municipio =  "Cabra";
+            provincia = "Córdoba";
+            municipio =  "Cabra";
             codigoProvincia = await obtener_codigo_provincia(provincia);
             codigoMunicipio = await obtener_codigo_municipio(municipio, codigoProvincia);
 
