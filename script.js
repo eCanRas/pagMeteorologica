@@ -89,8 +89,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function obtenerTiempo() {
         try {
-            let { provincia, municipio } = await obtenerUbicacion();
-            ubicacion.innerHTML = `Provincia: ${provincia}, Municipio: ${municipio}`;
+            //let { provincia, municipio } = await obtenerUbicacion();
+            //ubicacion.innerHTML = `Provincia: ${provincia}, Municipio: ${municipio}`;
         
             provincia = "Córdoba";
             municipio =  "Cabra";
