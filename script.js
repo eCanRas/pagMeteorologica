@@ -2,23 +2,38 @@ document.addEventListener('DOMContentLoaded', function () {
     const container = document.getElementById('container');
     const title = document.getElementById('title');
     const errorZone = document.getElementById('error');
+    const ubicacion = document.getElementById('ubicacion')
 
     const baseUrl = 'https://www.el-tiempo.net/api/json/v2';
 
-    async function obtener_codigo_provincia(nombreProvincia) {
+    function obtener_codigo_provincia(nombreProvincia) {
         // Obtener código de la provincia
-        let response = await fetch(`${baseUrl}/provincias`);
-        let data = await response.json();
-        let codigoProvincia = data.provincias.find(p => p.NOMBRE_PROVINCIA.toLowerCase().includes(nombreProvincia.toLowerCase())).CODPROV;
-        return codigoProvincia;
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await fetch(`${baseUrl}/provincias`);
+                const data = await response.json();
+                let codigoProvincia = data.provincias.find(p => p.NOMBRE_PROVINCIA.toLowerCase().includes(nombreProvincia.toLowerCase())).CODPROV;
+                resolve(codigoProvincia);
+            } catch (error) {
+                console.error('Error al obtener los datos:', error);
+                reject(`Error al obtener los datos meteorológicos.`);
+            }
+        });
     }
 
-    async function obtener_codigo_municipio(nombreMunicipio, codigoProvincia) {
+    function obtener_codigo_municipio(nombreMunicipio, codigoProvincia) {
         // Obtener código del municipio
-        response = await fetch(`${baseUrl}/provincias/${codigoProvincia}/municipios`);
-        data = await response.json();
-        let codigoMunicipio = data.municipios.find(m => m.NOMBRE.toLowerCase().includes(nombreMunicipio.toLowerCase())).CODIGOINE.slice(0, 5);
-        return codigoMunicipio;
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await fetch(`${baseUrl}/provincias/${codigoProvincia}/municipios`);
+                const data = await response.json();
+                let codigoMunicipio = data.municipios.find(m => m.NOMBRE.toLowerCase().includes(nombreMunicipio.toLowerCase())).CODIGOINE.slice(0, 5);
+                resolve(codigoMunicipio);
+            } catch (error) {
+                console.error('Error al obtener los datos:', error);
+                reject(`Error al obtener los datos meteorológicos.`);
+            }
+        });
     }
 
     function mostrarTiempo(datos) {
@@ -75,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function obtenerTiempo() {
         try {
             let { provincia, municipio } = await obtenerUbicacion();
-            errorZone.innerHTML = `Provincia: ${provincia}, Municipio: ${municipio}`;
+            ubicacion.innerHTML = `Provincia: ${provincia}, Municipio: ${municipio}`;
         
             provincia = "Córdoba";
             municipio =  "Cabra";
@@ -89,8 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
             mostrarTiempo(tiempo);
 
         } catch (error) {
-            console.error('Error al obtener los datos:', error);
-            errorZone.innerHTML = `<p>Error al obtener los datos meteorológicos.</p>`;
+            errorZone.innerHTML = `<p>${error}</p>`;
         }
     }
 
