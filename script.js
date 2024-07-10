@@ -76,8 +76,8 @@ document.addEventListener('DOMContentLoaded', function () {
             let { provincia, municipio } = await obtenerUbicacion();
             console.log(`Provincia: ${provincia}, Municipio: ${municipio}`);
         
-            // provincia = "Córdoba";
-            // municipio =  "Cabra";
+            provincia = "Córdoba";
+            municipio =  "Cabra";
             codigoProvincia = await obtener_codigo_provincia(provincia);
             codigoMunicipio = await obtener_codigo_municipio(municipio, codigoProvincia);
 
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } catch (error) {
             console.error('Error al obtener los datos:', error);
-            container.innerHTML = '<p>Error al obtener los datos meteorológicos.</p>';
+            container.innerHTML = `<p>Error al obtener los datos meteorológicos.</p>`;
         }
     }
 
