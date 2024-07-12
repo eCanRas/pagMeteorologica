@@ -6,14 +6,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const baseUrl = 'https://www.el-tiempo.net/api/json/v2';
 
+    function eliminarDiacriticos(texto) {
+        return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
     function obtener_codigo_provincia(nombreProvincia) {
         // Obtener código de la provincia
         return new Promise(async (resolve, reject) => {
             try {
+                nombreProvincia = eliminarDiacriticos(nombreProvincia.toLowerCase());
                 const response = await fetch(`${baseUrl}/provincias`);
                 const data = await response.json();
             
-                let codigoProvincia = data.provincias.find(p => p.NOMBRE_PROVINCIA.toLowerCase().includes(nombreProvincia.toLowerCase())).CODPROV;
+                let codigoProvincia = data.provincias.find(p => {
+                    p = eliminarDiacriticos(p.NOMBRE_PROVINCIA.toLowerCase());
+
+                    return p === nombreProvincia
+                        || p.includes(`\/${nombreProvincia}`)
+                        || p.includes(`${nombreProvincia}\/`);
+                }).CODPROV;
                 resolve(codigoProvincia);
             } catch (error) {
                 console.error('Error al obtener los datos:', error);
@@ -26,9 +37,16 @@ document.addEventListener('DOMContentLoaded', function () {
         // Obtener código del municipio
         return new Promise(async (resolve, reject) => {
             try {
+                nombreMunicipio = eliminarDiacriticos(nombreMunicipio.toLowerCase());
                 const response = await fetch(`${baseUrl}/provincias/${codigoProvincia}/municipios`);
                 const data = await response.json();
-                let codigoMunicipio = data.municipios.find(m => m.NOMBRE.toLowerCase().includes(nombreMunicipio.toLowerCase())).CODIGOINE.slice(0, 5);
+                let codigoMunicipio = data.municipios.find(m => {
+                    m = eliminarDiacriticos(m.NOMBRE.toLowerCase());
+
+                    return m === nombreMunicipio
+                        || m.includes(`\/${nombreMunicipio}`)
+                        || m.includes(`${nombreMunicipio}\/`);
+                }).CODIGOINE.slice(0, 5);
                 resolve(codigoMunicipio);
             } catch (error) {
                 console.error('Error al obtener los datos:', error);
@@ -37,6 +55,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    /**
+     * Funcion para muestrar los datos meteorologicos a partir de un json
+     * @param datos 
+     */
     function mostrarTiempo(datos) {
         const { NOMBRE } = datos.municipio;
         const { temperatura_actual, temperaturas, stateSky, humedad, viento } = datos;
@@ -62,6 +84,10 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
     }
 
+    /**
+     * Funcion para obtener la ubicacion del dispositivo
+     * @returns municipio y provincia en la que se encuentra el dispositivo
+     */
     function obtenerUbicacion() {
         return new Promise((resolve, reject) => {
             if (navigator.geolocation) {
@@ -101,6 +127,9 @@ document.addEventListener('DOMContentLoaded', function () {
             let { provincia, municipio } = await obtenerUbicacion();
             ubicacion.innerHTML = `<h1>Provincia: ${provincia}, Municipio: ${municipio}</h1>`;
             
+            provincia = "cordoba";
+            municipio = "cabra"
+
             codigoProvincia = await obtener_codigo_provincia(provincia);
             codigoMunicipio = await obtener_codigo_municipio(municipio, codigoProvincia);
             // Obtener datos meteorológicos
