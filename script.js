@@ -127,8 +127,8 @@ document.addEventListener('DOMContentLoaded', function () {
             let { provincia, municipio } = await obtenerUbicacion();
             ubicacion.innerHTML = `<h1>Provincia: ${provincia}, Municipio: ${municipio}</h1>`;
             
-            provincia = "cordoba";
-            municipio = "cabra"
+            //provincia = "Malaga";
+            //municipio = "Marbella";
 
             codigoProvincia = await obtener_codigo_provincia(provincia);
             codigoMunicipio = await obtener_codigo_municipio(municipio, codigoProvincia);
