@@ -1,8 +1,7 @@
-document.addEventListener('DOMContentLoaded', function () { 
-    const container = document.getElementById('container');
-    const title = document.getElementById('title');
-    const errorZone = document.getElementById('error');
-    const ubicacion = document.getElementById('ubicacion')
+document.addEventListener('DOMContentLoaded', async () => { 
+
+    const provinciasSelect = document.getElementById('provincias');
+    const municipiosSelect = document.getElementById('municipios');
 
     const baseUrl = 'https://www.el-tiempo.net/api/json/v2';
 
@@ -59,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
      * Funcion para muestrar los datos meteorologicos a partir de un json
      * @param datos 
      */
-    function mostrarTiempo(datos) {
+    function mostrarTiempo(datos, container, title) {
         const { NOMBRE } = datos.municipio;
         const { temperatura_actual, temperaturas, stateSky, humedad, viento } = datos;
 
@@ -122,10 +121,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    async function obtenerTiempo() {
+    async function obtenerTiempo(pos, provincia, municipio) {
+        const container = document.getElementById(`container${pos}`);
+        const title = document.getElementById(`title${pos}`);
+        const errorZone = document.getElementById(`error${pos}`);
+        const ubicacion = document.getElementById(`ubicacion${pos}`);
+
         try {
-            let { provincia, municipio } = await obtenerUbicacion();
-            ubicacion.innerHTML = `<h1>Provincia: ${provincia}, Municipio: ${municipio}</h1>`;
+            if (provincia === undefined && municipio === undefined) {
+                var { provincia, municipio } = await obtenerUbicacion();
+                
+                ubicacion.innerHTML = `<h1>Provincia: ${provincia}, Municipio: ${municipio}</h1>`;
+            }
             
             //provincia = "Malaga";
             //municipio = "Marbella";
@@ -136,12 +143,79 @@ document.addEventListener('DOMContentLoaded', function () {
             response = await fetch(`${baseUrl}/provincias/${codigoProvincia}/municipios/${codigoMunicipio}`);
             let tiempo = await response.json();
 
-            mostrarTiempo(tiempo);
+            mostrarTiempo(tiempo, container, title);
 
         } catch (error) {
             errorZone.innerHTML = `<p>${error}</p>`;
         }
     }
 
-    obtenerTiempo();
+    obtenerTiempo("");
+
+
+
+    async function obtenerProvincias() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await fetch(`${baseUrl}/provincias`);
+                const data = await response.json();
+                resolve (data.provincias);
+            } catch (error) {
+                console.error('Error al mostrar las provincias: ', error);
+                reject(`Error al mostrar las provincias.`);
+            }
+        });        
+    }
+
+    async function obtenerMunicipios(codigoProvincia) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await fetch(`${baseUrl}/provincias/${codigoProvincia}/municipios`);
+                const data = await response.json();
+                resolve (data.municipios);
+            } catch (error) {
+                console.error('Error al mostrar los municipios: ', error);
+                reject(`Error al mostrar los municipios.`);
+            }
+        });
+    }
+
+    try {
+        const provincias = await obtenerProvincias();
+        provincias.forEach(provincia => {
+            const option = document.createElement('option');
+            option.value = provincia.CODPROV;
+            option.textContent = provincia.NOMBRE_PROVINCIA;
+            provinciasSelect.appendChild(option);
+        });
+
+        provinciasSelect.addEventListener('change', async () => {
+            //document.getElementById('selectorMunicipio').style.visibility = 'visible'
+            municipiosSelect.innerHTML = '<option value="">Seleccione un municipio</option>'; // Limpiar municipios
+            const codigoProvincia = provinciasSelect.value;
+
+            if (codigoProvincia) {
+                const municipios = await obtenerMunicipios(codigoProvincia);
+                
+                municipios.forEach(municipio => {
+                    const option = document.createElement('option');
+                    option.value = municipio.CODPROV;
+                    option.textContent = municipio.NOMBRE;
+                    municipiosSelect.appendChild(option);
+                });
+            }
+        });
+
+        municipiosSelect.addEventListener('change', () => {
+            const municipioNombre = municipiosSelect.options[municipiosSelect.selectedIndex].text;
+            const provinciaNombre = provinciasSelect.options[provinciasSelect.selectedIndex].text;
+
+            if(codigoProvincia && codigoMunicipio) {
+                obtenerTiempo("Bus",provinciaNombre, municipioNombre)
+            }
+        });
+    } catch (error) {
+        console.log(error)
+    }
+
 });
