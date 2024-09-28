@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
      */
     function mostrarTiempo(datos, container, title) {
         const { NOMBRE } = datos.municipio;
-        const { temperatura_actual, temperaturas, stateSky, humedad, viento } = datos;
+        const { temperatura_actual, temperaturas, stateSky, humedad, viento, precipitacion } = datos;
 
         const ahora = new Date(); // Crea un objeto Date con la fecha y hora actual
         const horas = ahora.getHours(); // Obtiene la hora (0-23)
@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <p>Temperatura mínima: ${temperaturas.min}°C</p>
             <p>Descripción: ${stateSky.description}</p>
             <p>Humedad: ${humedad}%</p>
+            <p>Precipitacion: ${precipitacion} L/m3</p>
             <p>Velocidad del viento: ${viento} km/h</p>
             <p>Ultima actualizacion: ${horas}:${minutos}:${segundos}</p>
         `;
@@ -141,6 +142,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Obtener datos meteorológicos
             response = await fetch(`${baseUrl}/provincias/${codigoProvincia}/municipios/${codigoMunicipio}`);
+            // console.log(`${baseUrl}/provincias/${codigoProvincia}/municipios/${codigoMunicipio}`);
             let tiempo = await response.json();
 
             mostrarTiempo(tiempo, container, title);

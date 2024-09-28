@@ -2,6 +2,7 @@ body {
     text-align: center;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     background-image: url('/fondo.jpg');
+    background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
     /* position: center; */
